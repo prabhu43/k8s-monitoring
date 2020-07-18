@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-postgresql-exporter
+  namespace: demo
+  labels:
+    name: example-postgresql-exporter
+    app: postgresql
+spec:
+  selector:
+    matchLabels:
+      name: example-postgresql-exporter
+  template:
+    metadata:
+      labels:
+        name: example-postgresql-exporter
+    spec:
+      containers:
+        - name: postgres-cluster
+          args:
+          - "--extend.query-path=/etc/config.yaml"
+          env:
+            - name: DATA_SOURCE_NAME
+              value: postgresql://postgres:postgres@example-postgresql.demo:5432/postgres?sslmode=disable
+          image: "wrouesnel/postgres_exporter:v0.4.7"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9187
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+            - name: queries
+              mountPath: /etc/config.yaml
+              subPath: config.yaml
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: example-postgresql-exporter
+        name: queries
+---

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-postgresql
+  namespace: demo
+  labels:
+    name: example-postgresql
+    app: postgresql
+spec:
+  type: ClusterIP
+  ports:
+  - name: postgresql
+    port: 5432
+    targetPort: postgresql
+  selector:
+    name: example-postgresql
+    app: postgresql

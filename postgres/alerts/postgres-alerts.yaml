@@ -1,0 +1,24 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app: postgres-alerts-prometheus-rules
+    prometheus: k8s
+    role: alert-rules
+  name: postgres-alerts-prometheus-rules
+  namespace: monitoring
+spec:
+  groups:
+  - name: postgres.rules
+    rules:
+    - alert: PgUp
+      annotations:
+        description: PG {{ $labels.service }} in {{ $labels.namespace }} is up
+        summary: PG is up for last 10 seconds
+      expr: pg_up == 1
+      for: 10s
+      labels:
+        alert_value: '{{ $value }}'
+        service: postgresql
+        severity: warning
+        severity_num: "300"
